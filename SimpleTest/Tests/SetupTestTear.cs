@@ -52,11 +52,13 @@ namespace ProgressionBlockerAutomatedTests
         [Test, Order(0)]
         public void SpawnLocation()
         {
+            //Variables + Test Description
+            Console.WriteLine("This test verifies if character has spawned and if spawning pos is correct, by comparing it with expected pos");
             Vector3 position = api.GetObjectPosition(playerName);
-            double diff = Math.Sqrt(Math.Pow(position.x - spawnPos.x, 2) + Math.Pow(position.y - spawnPos.y, 2)); //vector translation magnitude (translacja - przesunięcie w x y) (transformacja - przesunięcie plus rotacja)
 
-            ClassicAssert.Less((diff), tolerance, "postac zespawnowala sie dalej niz expected pos");
-            Console.WriteLine("This test verifies if character has spawned on the level and if spawning pos is correct, by comparing it with expected pos");
+            //calculating spawn pos against expected pos considering tolerance for player idle anim
+            double diff = Math.Sqrt(Math.Pow(position.x - spawnPos.x, 2) + Math.Pow(position.y - spawnPos.y, 2)); //vector translation magnitude (translacja - przesunięcie w x y) (transformacja - przesunięcie plus rotacja)
+            Assert.That(diff, Is.LessThan(tolerance), "Hero spawned outside acceptable zone");
         }
 
 
@@ -74,7 +76,7 @@ namespace ProgressionBlockerAutomatedTests
             Vector3 poseAfter = api.GetObjectPosition(playerName);  //get player pos after movement
 
             double diffX = poseAfter.x - posBefore.x;   //declairing and initilizing diff between before and after on X axis
-            Assert.That(diffX, Is.Positive, "Hero moved left instead of right");    //Checking if diffX is positive, if not than
+            Assert.That(diffX, Is.Positive, "Hero moved left instead of right");    //Checking if diffX is positive, if not than assert
             Assert.That(Math.Abs(diffX), Is.GreaterThan(tolerance), "Hero didn't move more than idle animation");
 
             //Walking Left
@@ -132,13 +134,12 @@ namespace ProgressionBlockerAutomatedTests
                 Vector3 keyPos = api.GetObjectPosition("/*[@name='Key']/*[@name='Point light']"); // getting goal vector
                 api.SetObjectFieldValue("//*[@name='Ellen']/fn:component('UnityEngine.Transform')", "position", keyPos); // teleporting hero to goal
                 api.Wait(3000);
-                if (api.ObjectExists(key)) // if object does not disappear = assert
+                if (api.ObjectExists(key)) // if object still exists = assert
                 {
                     Assert.Fail("Key was not picked up");
                 }
             }
-            else Assert.Fail("no key available"); // verifying if key is within the level
-
+            else Assert.Fail("no key available"); // if the key is not available within level = assert
         }
 
 
@@ -147,8 +148,9 @@ namespace ProgressionBlockerAutomatedTests
         {
             //Variables + Test Description
             ulong numFrames = (ulong)(0.5 * api.GetLastFPS());
-            Console.WriteLine("This test verifies if Hero cap pass to Zone3");
+            Console.WriteLine("This test verifies if Hero can pass to Zone3");
 
+            //loop to get the player manually to the zone 3
             do
             {
                 api.KeyPress(new KeyCode[] { KeyCode.D }, 1 * numFrames);
@@ -167,6 +169,11 @@ namespace ProgressionBlockerAutomatedTests
         [Test, Order(5)]
         public void StandingOnPlatform()
         {
+            //Test Description
+            Console.WriteLine("This test checks if the player can stand on platforms required to progress the level");
+
+            //methods used to teleport player to plat of each index 
+            //Reporting for this test is executed within used method
             TeleportToPlat("0");
             api.Wait(1000);
             TeleportToPlat("1");
